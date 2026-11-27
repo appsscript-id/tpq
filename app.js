@@ -11,7 +11,7 @@ const cls=v=>v==null?'na':v>=85?'g':v>=kkm()?'y':'r',ini=n=>String(n).split(' ')
 const inp=(k,l,v='',t='text')=>`<label>${l}<input id="f_${k}" type="${t}" value="${esc(v)}"></label>`,val=k=>$('#f_'+k).value.trim();
 function toast(m,e){const t=$('#toast');t.textContent=m;t.className='show'+(e?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',2800)}
 const modal=h=>{$('#modal').innerHTML=`<div class="box">${h}</div>`;$('#modal').className='modal on';document.documentElement.style.setProperty('--navh',(innerWidth<=820&&$('.side')?$('.side').offsetHeight:0)+'px')},closeM=()=>$('#modal').className='modal';
-$('#modal').onclick=e=>{if(e.target.id=='modal')closeM()};
+$('#modal').onclick=e=>{if(e.target.id=='modal'&&!e.target.querySelector('.jform'))closeM()};
 /* ===== DATA / API ===== */
 const DEF={namaTpq:'TPQ Al-Hidayah',kategori:'Hafalan,Makharijul Huruf,Tajwid',kelas:'Iqra 1,Iqra 2,Iqra 3,Al-Quran',kkm:'70'};
 const dmId=v=>/^(demo-|s([1-9]|1[0-4])$)/.test(String(v||'')),isDm=x=>dmId(x.id)||dmId(x.santriId);
