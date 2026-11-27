@@ -170,3 +170,24 @@ main{padding:4px 14px 24px}
 .jt .jst:before{content:'Setoran: ';color:var(--mut)}.jt td:nth-child(5):empty{display:none}.jt td:nth-child(5):not(:empty):before{content:'Kelancaran: ';color:var(--mut)}
 .jt .ac{justify-content:stretch}.jt .ac .btn{flex:1;justify-content:center}
 }
+
+/* ===== HP: menu bawah 5 item + scroll, form sebagai bottom sheet ===== */
+.jf .full{grid-column:1/-1}
+.box .chips .chip{text-align:center}
+@media(max-width:820px){
+.side{display:flex!important;flex-direction:row;gap:0;overflow-x:auto!important;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+background:linear-gradient(to right,#fff 30%,#fff0),linear-gradient(to right,#fff0,#fff 70%) 100% 0,radial-gradient(farthest-side at 0 50%,#6d2aa826,#0000),radial-gradient(farthest-side at 100% 50%,#6d2aa826,#0000) 100% 0;background-repeat:no-repeat;background-color:#fff;background-size:40px 100%,40px 100%,14px 100%,14px 100%;background-attachment:local,local,scroll,scroll}
+.side::-webkit-scrollbar{display:none}
+.side .nv{flex:0 0 calc((100vw - 12px)/5);scroll-snap-align:start;font-size:10px;padding:7px 2px}
+.side .nv.out{display:none}
+/* modal = bottom sheet, di atas menu bawah */
+.modal{z-index:60;padding:0;place-items:end center;align-items:end}
+.box{max-width:none;border-radius:24px 24px 0 0;max-height:92vh;padding:20px 16px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px #25123a40}
+.box h3{font-size:18px}
+.box input,.box select,.box textarea{font-size:16px}
+.box .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px}
+.box .chip{padding:11px 8px;font-size:13px;border-radius:14px}
+.jf{grid-template-columns:1fr 1fr!important}
+.box .acts{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));background:#fff;margin:18px -16px 0;padding:12px 16px;border-top:1px solid var(--ln);flex-wrap:nowrap}
+.box .acts .btn{padding:13px 10px}
+}
