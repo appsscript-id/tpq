@@ -267,3 +267,14 @@ html:has(.modal.on .jform),body:has(.modal.on .jform){overflow:hidden;overscroll
 .pdfmode .paper table{display:table!important;overflow:visible!important;width:100%}
 .pdfmode .pt2 th,.pdfmode .pt2 td{font-size:11.5px;padding:5px 7px}
 .pdfmode .sign{gap:20px;font-size:12px}
+
+/* isi tabel A rata tengah */
+.pt2.tA td{text-align:center;vertical-align:middle}
+/* tanda tangan di dasar halaman (cetak & PDF) */
+.sign{margin-top:auto}
+@media print{
+ .paper{display:flex!important;flex-direction:column;min-height:262mm}
+ .paper .sign{margin-top:auto;padding-top:30px}
+}
+.pdfmode .paper{display:flex;flex-direction:column;min-height:272mm}
+.pdfmode .paper .sign{margin-top:auto;padding-top:30px}
