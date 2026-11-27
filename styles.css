@@ -270,11 +270,25 @@ html:has(.modal.on .jform),body:has(.modal.on .jform){overflow:hidden;overscroll
 
 /* isi tabel A rata tengah */
 .pt2.tA td{text-align:center;vertical-align:middle}
-/* tanda tangan di dasar halaman (cetak & PDF) */
-.sign{margin-top:auto}
-@media print{
- .paper{display:flex!important;flex-direction:column;min-height:262mm}
- .paper .sign{margin-top:auto;padding-top:30px}
-}
-.pdfmode .paper{display:flex;flex-direction:column;min-height:272mm}
-.pdfmode .paper .sign{margin-top:auto;padding-top:30px}
+/* tanda tangan: langsung setelah isi rapor, diturunkan sedikit */
+.paper .sign{margin-top:72px}
+.sgd{text-align:right;margin-top:40px;font-size:12px}.sgd+.sign{margin-top:16px!important}
+
+/* ===== Pengaturan ===== */
+img.lm{object-fit:contain;background:#fff;border:1px solid var(--ln);padding:3px}
+.lgi{width:96px;height:96px;object-fit:contain;background:#fff;border-radius:22px;padding:8px}
+.ph small{display:block;font-size:11.5px;line-height:1.5}.ph .ky{text-transform:uppercase;font-weight:700}
+.stabs{display:flex;gap:4px;background:#fff;border:1.5px solid var(--ln);border-radius:20px;padding:8px;margin-bottom:20px;overflow-x:auto;scrollbar-width:thin}
+.stabs button{display:flex;gap:10px;align-items:center;border:0;background:none;color:var(--g2);font-weight:600;padding:11px 18px;border-radius:14px;cursor:pointer;white-space:nowrap}
+.stabs button:hover{background:#f8f2fc}.stabs button.on{background:#f1e6fa;color:var(--g2)}.stabs em{font-style:normal;color:var(--gold);font-size:12px;font-weight:700}
+.sg{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+.card .sub2{color:var(--mut);margin:2px 0 16px;font-size:13px}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.logobox{display:grid;place-items:center;height:180px;border:2px dashed #e3d8ee;border-radius:20px;margin-bottom:14px}.logobox img{max-width:150px;max-height:150px}.logobox .lm{width:96px;height:96px;font-size:52px}
+.li{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f4eef8}.li>span{flex:1;min-width:0}.li small{color:var(--mut)}
+.add{display:flex;gap:10px;margin-top:14px}.add input{flex:1;min-width:0}
+.wap{white-space:pre-wrap;background:#e7f7ec;border-radius:18px;padding:16px;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.card textarea{width:100%;resize:vertical}
+.ck1{flex-direction:row;align-items:center;gap:10px}.ck1 input{width:18px;height:18px}
+@media(max-width:1100px){.sg{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:821px){.stabs{flex-wrap:wrap;overflow:visible}.stabs button{padding:10px;gap:6px;font-size:13px;flex:1 0 auto;justify-content:center}}
