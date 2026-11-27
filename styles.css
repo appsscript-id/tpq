@@ -151,3 +151,22 @@ main{padding:4px 14px 24px}
 /* perbaikan: toast kosong tidak boleh tampak */
 #toast{opacity:0;visibility:hidden;pointer-events:none;transition:transform .3s,opacity .3s,visibility .3s}
 #toast.show{opacity:1;visibility:visible}
+
+/* ===== Jurnal Harian ===== */
+.jdate{align-items:center}.jdate input[type=date]{padding:10px 12px}
+.jsum{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.jq{display:inline-flex;gap:6px}.jq b{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--ln);display:grid;place-items:center;cursor:pointer;font-weight:700;color:var(--mut);background:#fff;transition:.12s}.jq b:hover{border-color:#c27ad6}
+.jq b.on.hH{background:#dff6ea;color:#12905b;border-color:#12905b66}.jq b.on.hI,.jq b.on.hS{background:#fdf0cf;color:#946a05;border-color:#946a0566}.jq b.on.hA{background:#fde0e0;color:#c23a3a;border-color:#c23a3a66}
+.jt th,.jt td{vertical-align:middle}.jt .ai{width:40px;height:40px;font-size:14px}.jt .ac .btn{display:inline-flex;align-items:center;gap:8px;border-radius:12px}.jt .ac .btn.pv{background:#f3e9fa;color:var(--g2);border:0}
+@media(max-width:820px){
+.nv{font-size:9px}
+.jdate{width:100%}.jdate input{flex:1;min-width:0}.jdate .btn{flex:0 0 auto!important}
+.tw:has(.jt){border:0;overflow:visible;border-radius:0}
+.jt,.jt tbody{display:block;width:100%}.tw .jt.tbl{min-width:0}.jt tr:first-child{display:none}
+.jt tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:center;border:1px solid var(--ln);border-radius:18px;padding:14px;margin-bottom:12px;background:#fff}
+.jt td,.jt tr:hover td{display:block;padding:0;border:0;background:none}
+.jt td:nth-child(n+3){grid-column:1/-1}
+.jq{display:flex}.jq b{flex:1;height:42px}
+.jt .jst:before{content:'Setoran: ';color:var(--mut)}.jt td:nth-child(5):empty{display:none}.jt td:nth-child(5):not(:empty):before{content:'Kelancaran: ';color:var(--mut)}
+.jt .ac{justify-content:stretch}.jt .ac .btn{flex:1;justify-content:center}
+}
