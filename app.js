@@ -12,6 +12,7 @@ const inp=(k,l,v='',t='text')=>`<label>${l}<input id="f_${k}" type="${t}" value=
 function toast(m,e){const t=$('#toast');t.textContent=m;t.className='show'+(e?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',2800)}
 const modal=h=>{$('#modal').innerHTML=`<div class="box">${h}</div>`;$('#modal').className='modal on';document.documentElement.style.setProperty('--navh',(innerWidth<=820&&$('.side')?$('.side').offsetHeight:0)+'px')},closeM=()=>$('#modal').className='modal';
 $('#modal').onclick=e=>{if(e.target.id=='modal'&&!e.target.querySelector('.jform'))closeM()};
+document.addEventListener('click',e=>{if(e.target.closest('.side')&&$('#modal').classList.contains('on')&&$('#modal .jform')){e.stopPropagation();e.preventDefault();toast('Selesaikan dulu jurnalnya: tekan Simpan atau Batal',1)}},true);
 /* ===== DATA / API ===== */
 const DEF={namaTpq:'TPQ Al-Hidayah',kategori:'Hafalan,Makharijul Huruf,Tajwid',kelas:'Iqra 1,Iqra 2,Iqra 3,Al-Quran',kkm:'70'};
 const dmId=v=>/^(demo-|s([1-9]|1[0-4])$)/.test(String(v||'')),isDm=x=>dmId(x.id)||dmId(x.santriId);
