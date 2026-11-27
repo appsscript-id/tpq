@@ -191,3 +191,22 @@ background:linear-gradient(to right,#fff 30%,#fff0),linear-gradient(to right,#ff
 .box .acts{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));background:#fff;margin:18px -16px 0;padding:12px 16px;border-top:1px solid var(--ln);flex-wrap:nowrap}
 .box .acts .btn{padding:13px 10px}
 }
+/* ===== HP: form jurnal lebih ringkas & kartu memanjang sampai atas ===== */
+@media(max-width:820px){
+.modal{height:100dvh}
+.box:has(.jform){max-height:none;height:calc(100dvh - 20px);padding-top:16px}
+.jform{display:flex;flex-direction:column;min-height:100%}
+.jform h3{font-size:16px;margin-bottom:2px}
+.jform>p.mut{font-size:12.5px;margin-bottom:10px!important}
+.jform label{font-size:11.5px;gap:4px}
+.jform .chips{grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:6px}
+.jform .chip{padding:8px 4px;font-size:12px;border-radius:12px}
+.jform input,.jform select,.jform textarea{padding:9px 12px;border-radius:12px}
+.jform .fg{gap:10px}
+.jform #jdet{margin-top:12px!important}
+.jform .jf{margin-top:10px!important}
+.jform textarea{min-height:90px}
+.jform label[style]{margin-top:12px!important}
+.jform .acts{margin-top:auto;position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom,0px));padding-top:12px}
+.jform .acts .btn{padding:11px 10px;font-size:14px}
+}
