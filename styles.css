@@ -225,3 +225,10 @@ background:linear-gradient(to right,#fff 30%,#fff0),linear-gradient(to right,#ff
 .box:has(.jform){touch-action:pan-y}
 html:has(.modal.on .jform),body:has(.modal.on .jform){overflow:hidden;overscroll-behavior:none}
 }
+
+/* dialog jurnal: jarak atas/bawah sama dengan kiri/kanan (14px), kartu memanjang */
+@media(max-width:820px){
+.modal{padding:14px}
+.box:has(.jform){align-self:stretch;height:auto;max-height:none}
+.jform{min-height:100%}
+}
