@@ -211,9 +211,10 @@ background:linear-gradient(to right,#fff 30%,#fff0),linear-gradient(to right,#ff
 .jform .acts .btn{padding:11px 10px;font-size:14px}
 }
 
-/* ===== HP: form jurnal berhenti tepat di atas menu bawah, rata sampai atas, sisi lebih ramping ===== */
+/* ===== HP: dialog jurnal = kartu melayang selebar kartu santri, di atas menu bawah ===== */
 @media(max-width:820px){
-.modal{height:auto;bottom:var(--navh,0px);backdrop-filter:none}
-.box:has(.jform){height:100%;max-height:none;border-radius:0;padding:14px 12px 12px;box-shadow:none}
-.jform .acts{margin-left:-12px;margin-right:-12px;padding:12px;bottom:-12px}
+.modal{height:auto;bottom:var(--navh,0px);padding:12px 14px;place-items:center;align-items:center;grid-template-rows:minmax(0,1fr);backdrop-filter:none;background:#25123a99}
+.box:has(.jform){height:auto;max-height:100%;width:100%;border-radius:22px;padding:16px;box-shadow:0 10px 40px #25123a40;overscroll-behavior:contain}
+.jform{min-height:0}
+.jform .acts{margin:14px -16px -16px;padding:12px 16px;bottom:-16px;border-radius:0 0 22px 22px}
 }
