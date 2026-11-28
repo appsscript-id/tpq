@@ -1,4 +1,4 @@
-const API_URL=''; // TEMPEL URL Web App Apps Script di sini. Kosong = mode demo (data disimpan di browser)
+const API_URL='https://script.google.com/macros/s/AKfycbxgzKQ_qw98MkZubxEGXrhDMGLIAlNLRdFIyFV1YqHDkqqC9hFBfAVKfZ2Mg0HPBO5H/exec'; // TEMPEL URL Web App Apps Script di sini. Kosong = mode demo (data disimpan di browser)
 const $=s=>document.querySelector(s),MON=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 const S={token:null,user:null,santri:[],nilai:[],users:[],set:{},view:'dash',fk:'',q:'',lk:'',lb:'',nf:''};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
