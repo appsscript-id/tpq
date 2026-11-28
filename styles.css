@@ -292,3 +292,11 @@ img.lm{object-fit:contain;background:#fff;border:1px solid var(--ln);padding:3px
 .ck1{flex-direction:row;align-items:center;gap:10px}.ck1 input{width:18px;height:18px}
 @media(max-width:1100px){.sg{grid-template-columns:minmax(0,1fr)}}
 @media(min-width:821px){.stabs{flex-wrap:wrap;overflow:visible}.stabs button{padding:10px;gap:6px;font-size:13px;flex:1 0 auto;justify-content:center}}
+
+/* ===== Form santri ===== */
+input.bad{border-color:var(--r)!important;outline:3px solid #e0524f22}
+@media(max-width:820px){
+.jform .jf>label{min-width:0}.jform .jf input,.jform .jf select{width:100%;min-width:0}
+.jform .acts .btn{white-space:normal;line-height:1.25}
+}
+@media(max-width:820px){.jform[data-lock]>.fg{margin-bottom:14px}.jform[data-lock] .acts{margin-top:auto}}
