@@ -404,3 +404,13 @@ input.bad{border-color:var(--r)!important;outline:3px solid #e0524f22}
 .paper .sign small{font-size:inherit;margin-bottom:70px}
 .pdfmode .sgd{width:calc((100% - 40px)/3);text-align:center}
 @media (max-width:640px){.paper .sgd{width:calc((100% - 16px)/3)}}
+
+/* data santri di rapor: latar ungu muda senada header tabel */
+.paper .pi{background:#f4eafb;border:1px solid #ddd0ea;border-radius:8px;border-collapse:separate;border-spacing:0;margin-bottom:10px;box-sizing:border-box}
+.paper .pi td{padding:3px 10px 3px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.paper .pi td:first-child{padding-left:14px;color:var(--g2)}
+.paper .pi td:nth-child(3){color:var(--g2)}
+.paper .pi tr:first-child td{padding-top:10px}
+.paper .pi tr:last-child td{padding-bottom:10px}
+.paper .pi td:last-child{padding-right:14px}
+.paper .pi{-webkit-print-color-adjust:exact;print-color-adjust:exact}
