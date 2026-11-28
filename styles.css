@@ -378,3 +378,6 @@ input.bad{border-color:var(--r)!important;outline:3px solid #e0524f22}
 .jd thead{display:table-header-group}.jd tbody tr:nth-child(odd) td{background:#fbf8fd}
 .jg .jb{white-space:normal;line-height:1.2}
 .jsd{display:grid;grid-template-columns:repeat(3,1fr);gap:2em;text-align:center}.jsd span{grid-column:3}
+/* pilihan cetak rekap */
+.cpl{display:grid;gap:12px}.cpl button{display:flex;flex-direction:column;gap:6px;text-align:left;border:1.5px solid var(--ln);background:#fff;border-radius:18px;padding:16px 18px;cursor:pointer;color:var(--tx)}
+.cpl button:hover{border-color:#c27ad6;background:#fcf8fe}.cpl b{display:flex;gap:10px;align-items:center;color:var(--g2);font-size:15px}.cpl span{color:var(--mut);font-size:13px;line-height:1.5}
