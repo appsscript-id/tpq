@@ -33,14 +33,35 @@ function local(a,p){const d=db(),sv=()=>localStorage.setItem('tpq_db2',JSON.stri
 if(a=='login'){const u=d.Users.find(x=>x.username==p.username&&x.password==p.password);if(!u)throw Error('Username atau password salah');const{password,...r}=u;return{token:'demo',user:r}}
 if(a=='all'){const o={Settings:d.Settings,Users:[]};if(S.user.role=='wali'){const ids=String(S.user.santriId).split(',');o.Santri=d.Santri.filter(s=>ids.includes(s.id));o.Nilai=d.Nilai.filter(n=>ids.includes(n.santriId))}else{o.Santri=d.Santri;o.Nilai=d.Nilai;if(S.user.role=='admin')o.Users=d.Users}o.Rapor=S.user.role=='wali'?d.Rapor.filter(r=>String(S.user.santriId).split(',').includes(r.santriId)):d.Rapor;o.Jurnal=S.user.role=='wali'?(d.Jurnal||[]).filter(j=>String(S.user.santriId).split(',').includes(j.santriId)):(d.Jurnal||[]);return o}
 if(S.user.role=='wali')throw Error('Tidak diizinkan');
-if(a=='save'){const t=d[p.sheet],i=t.findIndex(x=>x.id==p.obj.id);i>=0?t[i]={...t[i],...p.obj}:t.push({...p.obj,id:p.obj.id||uid()});sv();return 1}
+if(a=='save'){const t=d[p.sheet],i=t.findIndex(x=>x.id==p.obj.id);const id=p.obj.id||uid();i>=0?t[i]={...t[i],...p.obj}:t.push({...p.obj,id});sv();return id}
 if(a=='saveMany'){p.items.forEach(x=>{const t=d[x.sheet],i=t.findIndex(y=>y.id==x.obj.id);i>=0?t[i]={...t[i],...x.obj}:t.push(x.obj)});sv();return 1}
 if(a=='del'){d[p.sheet]=d[p.sheet].filter(x=>x.id!=p.id);if(p.sheet=='Santri'){d.Nilai=d.Nilai.filter(n=>n.santriId!=p.id);d.Jurnal=(d.Jurnal||[]).filter(n=>n.santriId!=p.id)}sv();return 1}
 if(a=='delDemo'){let n=0;BK.forEach(k=>{const t=d[k]||[];d[k]=t.filter(x=>!isDm(x));n+=t.length-d[k].length});sv();return n}
 if(a=='saveSettings'){Object.assign(d.Settings,p.map);sv();return 1}}
-async function api(action,p={}){if(!API_URL)return local(action,p);const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action,token:S.token,...p})});const j=await r.json();if(!j.ok)throw Error(j.error);return j.data}
+/* Data disimpan di memori: setelah menyimpan tidak perlu mengunduh ulang semuanya */
+let DB=null,usang=true,tulisN=0,antre=0,ambilT=0,rantai=Promise.resolve();
+document.head.insertAdjacentHTML('beforeend','<style>body.muat:before{content:"";position:fixed;top:0;left:0;height:3px;width:40%;background:linear-gradient(90deg,#6d2aa8,#e0239a);z-index:200;animation:muat 1.1s ease-in-out infinite}@keyframes muat{from{transform:translateX(-100%)}to{transform:translateX(250%)}}@media print{body.muat:before{display:none}}</style>');
+async function kirim(action,p={}){if(!API_URL)return local(action,p);antre++;document.body.classList.add('muat');
+try{const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action,token:S.token,...p})});const j=await r.json();if(!j.ok)throw Error(j.error);return j.data}
+finally{if(!--antre)document.body.classList.remove('muat')}}
+const TULIS=['save','saveMany','del','delDemo','saveSettings'];
+function ubah(sheet,obj){const o=JSON.parse(JSON.stringify(obj)),t=DB[sheet]||(DB[sheet]=[]),i=t.findIndex(x=>x.id==o.id);i>=0?t[i]={...t[i],...o}:t.push(o)}
+function terapkan(a,p,r){if(!DB)return;
+if(a=='save')ubah(p.sheet,{...p.obj,id:p.obj.id||r});
+else if(a=='saveMany')p.items.forEach(x=>ubah(x.sheet,x.obj));
+else if(a=='del'){DB[p.sheet]=(DB[p.sheet]||[]).filter(x=>x.id!=p.id);if(p.sheet=='Santri')['Nilai','Jurnal'].forEach(k=>DB[k]=(DB[k]||[]).filter(x=>x.santriId!=p.id))}
+else if(a=='saveSettings')Object.entries(p.map).forEach(([k,v])=>DB.Settings[k]=String(v));
+else usang=true}
+async function api(action,p={}){const w=TULIS.includes(action);if(w){tulisN++;await rantai}
+try{const r=await kirim(action,p);if(w){tulisN++;terapkan(action,p,r)}return r}catch(e){if(w)usang=true;throw e}}
 function usePer(){const p=String(S.set.periodeAktif||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(p))S.per=p}
-async function load(){const d=await api('all');S.santri=d.Santri;S.users=d.Users||[];S.set=d.Settings;try{localStorage.setItem('tpq_brand',JSON.stringify({namaTpq:S.set.namaTpq,logo:S.set.logo}))}catch(e){}S.rapor=d.Rapor||[];S.jurnal=(d.Jurnal||[]).map(j=>({...j,tanggal:String(j.tanggal).slice(0,10),surat:j.surat===''||j.surat==null?'':Number(j.surat),dari:j.dari===''||j.dari==null?'':Number(j.dari),sampai:j.sampai===''||j.sampai==null?'':Number(j.sampai)}));S.nilai=d.Nilai.map(n=>({...n,nilai:Number(n.nilai),tanggal:String(n.tanggal).slice(0,10)}))}
+async function load(){if(!DB||usang){DB=await kirim('all');usang=false;ambilT=Date.now()}pakai(DB)}
+function pakai(d){S.santri=d.Santri;S.users=d.Users||[];S.set=d.Settings;try{localStorage.setItem('tpq_brand',JSON.stringify({namaTpq:S.set.namaTpq,logo:S.set.logo}))}catch(e){}S.rapor=d.Rapor||[];S.jurnal=(d.Jurnal||[]).map(j=>({...j,tanggal:String(j.tanggal).slice(0,10),surat:j.surat===''||j.surat==null?'':Number(j.surat),dari:j.dari===''||j.dari==null?'':Number(j.dari),sampai:j.sampai===''||j.sampai==null?'':Number(j.sampai)}));S.nilai=d.Nilai.map(n=>({...n,nilai:Number(n.nilai),tanggal:String(n.tanggal).slice(0,10)}))}
+async function segarkan(){if(!API_URL||!S.token||antre||Date.now()-ambilT<6e4)return;ambilT=Date.now();const t=tulisN;
+try{const d=await kirim('all');if(t!=tulisN||antre||!S.token)return;DB=d;usang=false;pakai(d);
+const f=document.activeElement;if(!S.cur&&S.view!='setting'&&!$('#modal').classList.contains('on')&&!(f&&/INPUT|SELECT|TEXTAREA/.test(f.tagName)))render()}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)segarkan()});
+addEventListener('beforeunload',e=>{if(antre){e.preventDefault();e.returnValue=''}});
 async function sv(sheet,obj,msg){try{await api('save',{sheet,obj});await load();render();closeM();toast(msg||'Tersimpan')}catch(e){toast(e.message,1)}}
 async function rm(sheet,id){if(!confirm('Hapus data ini?'))return;try{await api('del',{sheet,id});await load();render();closeM();toast('Data dihapus')}catch(e){toast(e.message,1)}}
 const logoEl=u=>u?`<img class="lm" src="${esc(u)}" alt="Logo">`:'<div class="lm">ح</div>';
@@ -50,8 +71,10 @@ function loginView(){$('#app').innerHTML=`<div class="login"><div class="lg-art"
 <form class="lg-card" onsubmit="return doLogin(event)"><h2>Masuk</h2><span class="mut">Untuk admin, guru, dan wali santri</span>${inp('u','Username')}${inp('p','Password','','password')}<button class="btn">Masuk</button>
 ${API_URL?'':`<span class="mut">Mode demo, klik untuk isi:</span><div class="chips"><span class="chip" onclick="fl('admin','admin123')">Admin</span><span class="chip" onclick="fl('guru','guru123')">Guru</span><span class="chip" onclick="fl('wali','wali123')">Wali</span></div>`}</form></div>`}
 const fl=(u,p)=>{$('#f_u').value=u;$('#f_p').value=p};
-async function doLogin(e){e.preventDefault();try{const r=await api('login',{username:val('u'),password:$('#f_p').value});S.token=r.token;S.user=r.user;sessionStorage.setItem('tpq_s',JSON.stringify(r));await load();usePer();S.view='dash';render()}catch(x){toast(x.message,1)}return false}
-function logout(){sessionStorage.clear();S.token=S.user=null;loginView()}
+async function doLogin(e){e.preventDefault();const b=$('.lg-card .btn');if(b.disabled)return false;b.disabled=true;b.textContent='Memproses…';
+try{const r=await api('login',{username:val('u'),password:$('#f_p').value});S.token=r.token;S.user=r.user;sessionStorage.setItem('tpq_s',JSON.stringify({token:r.token,user:r.user}));
+DB=r.data||null;usang=!DB;ambilT=Date.now();await load();usePer();S.view='dash';render()}catch(x){toast(x.message,1);b.disabled=false;b.textContent='Masuk'}return false}
+function logout(){sessionStorage.clear();DB=null;usang=true;S.token=S.user=null;loginView()}
 /* ===== CHARTS ===== */
 function line(pts,h=150){if(!pts.length)return'<p class="mut">Belum ada data</p>';const w=420,p=26,n=pts.length,x=i=>p+(n<2?(w-2*p)/2:i*(w-2*p)/(n-1)),y=v=>h-p-(v/100)*(h-2*p);
 return`<svg viewBox="0 0 ${w} ${h}" class="chart"><line x1="${p}" x2="${w-p}" y1="${y(kkm())}" y2="${y(kkm())}" class="kkm"/><path d="${pts.map((q,i)=>(i?'L':'M')+x(i)+' '+y(q.v)).join('')}" class="ln"/>${pts.map((q,i)=>`<circle cx="${x(i)}" cy="${y(q.v)}" r="4.5" class="dot"/><text x="${x(i)}" y="${h-6}" text-anchor="middle">${q.l}</text><text x="${x(i)}" y="${y(q.v)-9}" text-anchor="middle" class="vl">${f1(q.v)}</text>`).join('')}</svg>`}
@@ -72,7 +95,7 @@ function perRange(k){if(!k)return'semua periode';const y=k.slice(0,4),m=+k.slice
 function perLabel(k){if(!k)return'-';const m=+k.slice(5,7),t={1:'PSTS',4:'PSAS',7:'PSTS',10:'PSAS'}[m];return(t?t+' · ':'')+perRange(k)}
 function perOpts(){const y=new Date().getFullYear(),a=[];for(let i=y;i>=y-2;i--)['10','07','04','01'].forEach(m=>a.push(i+'-'+m));(S.rapor||[]).forEach(r=>{if(/^\d{4}-\d{2}$/.test(r.periode)&&!a.includes(r.periode))a.push(r.periode)});if(!a.includes(S.per))a.push(S.per);a.sort().reverse();return a.map(k=>`<option value="${k}" ${k==S.per?'selected':''}>${perLabel(k)}</option>`).join('')}
 S.per=qStart(ltoday().slice(0,7));S.jd=ltoday();S.sv='kartu';S.nst='Semua';
-function nav(v){if(saveT)doSave();S.view=v;S.cur=null;S.q='';S.fk='';S.fs='';render()}
+function nav(v){if(saveT)doSave();S.view=v;S.cur=null;S.q='';S.fk='';S.fs='';render();segarkan()}
 function render(){const u=S.user,m=MENU[u.role];if(!m.some(x=>x[0]==S.view))S.view='dash';
 $('#app').innerHTML=`<div class="shell"><aside class="side"><div class="logo">${logoEl(S.set.logo)}<div><b>Halaqoh</b><span>Rapor Digital</span><em>${esc(S.set.namaTpq||'TPQ')}</em></div></div>${m.map(x=>`<div class="nv ${S.view==x[0]?'on':''}" onclick="nav('${x[0]}')">${ic(x[0])}${x[1]}</div>`).join('')}<div class="sec">AKUN</div><div class="nv out" onclick="logout()">${ic('out')}Keluar</div><div class="foot"><b>${esc(S.set.namaTpq||'TPQ')}</b>Tahun Pelajaran ${yr()}</div></aside><div class="mn"><header class="tb"><span>${m.find(x=>x[0]==S.view)[1]}</span><div class="tr"><label class="per">${ic('cal',16)}Periode <select onchange="if(saveT)doSave();S.per=this.value;if(S.cur)R=getR(S.cur);render()">${perOpts()}</select></label><div class="usr"><i>${ini(u.nama)}</i><div><b>${esc(u.nama)}</b><span>${u.role}</span></div></div><button class="lo" onclick="logout()" aria-label="Keluar">${ic('out',18)}</button></div></header><main>${V[S.view]()}</main></div></div>`;if(S.view=='santri')drawCards();if(S.view=='nilai'&&!S.cur)drawNil();if(S.view=='laporan')drawLap();if(S.view=='jurnal')drawJ();if(innerWidth<=820){const o=document.querySelector('.side .nv.on');if(o)o.scrollIntoView({inline:'center',block:'nearest'})}}
 /* ===== VIEWS ===== */
@@ -308,8 +331,9 @@ V.jurnal=()=>{if(S.user.role=='wali')return jWali();return`<div class="top"><div
 function jgo(n){const t=ltoday();let d=typeof n=='string'?n:n==0?t:addD(S.jd,n);if(!d||d>t)d=t;S.jd=d;$('#jd').value=d;drawJ()}
 function drawJ(){if(S.user.role=='wali'||!$('#jl'))return;$('#jdl').textContent=fmtD(S.jd);const ix={};(S.jurnal||[]).filter(x=>x.tanggal==S.jd).forEach(x=>ix[x.santriId]=x);const l=flt(),c=k=>l.filter(s=>ix[s.id]&&ix[s.id].hadir==k).length,done=l.filter(s=>ix[s.id]).length;
 $('#jl').innerHTML=`<div class="jsum">${['Hadir','Izin','Sakit','Alpa'].map(k=>`<span class="st ${HCL[k]}">${k} ${c(k)}</span>`).join('')}<span class="st">Belum dicatat ${l.length-done}</span><button class="btn ghost sm" onclick="jall()">✓ Tandai semua hadir</button></div>`+(!l.length?'<p class="mut">Tidak ada santri.</p>':`<div class="tw"><table class="tbl jt"><tr><th>SANTRI</th><th>KELAS</th><th>KEHADIRAN</th><th>SETORAN</th><th>KELANCARAN</th><th style="text-align:right">AKSI</th></tr>${l.map(s=>{const e=ix[s.id],hd=e&&e.hadir=='Hadir';return`<tr><td><div class="nm" onclick="jhist('${s.id}')"><span class="ai">${ini(s.nama)}</span><b>${esc(s.nama)}</b></div></td><td><span class="pl">${esc(s.kelas)}</span></td><td><div class="jq">${[['Hadir','H'],['Izin','I'],['Sakit','S'],['Alpa','A']].map(([k,t])=>`<b class="h${t} ${e&&e.hadir==k?'on':''}" title="${k}" onclick="jq('${s.id}','${k}')">${t}</b>`).join('')}</div></td><td class="jst">${hd?(e.jenis?`<b>${esc(e.jenis)}</b> · `:'')+esc(jsur(e)):'-'}</td><td>${hd&&e.mutu?`<span class="st ${MCL[e.mutu]||''}">${esc(e.mutu)}</span>`:''}</td><td><div class="ac"><button class="btn sm ghost pv" onclick="jform('${s.id}')">${ic('nilai',16)}${hd?'Ubah setoran':'Isi setoran'}</button></div></td></tr>`}).join('')}</table></div>`)}
-async function jq(id,h){const e=(S.jurnal||[]).find(x=>x.santriId==id&&x.tanggal==S.jd);if(e&&e.hadir==h)return;const o={id:jid(id,S.jd),tanggal:S.jd,santriId:id,hadir:h,guru:S.user.nama};if(h!='Hadir'){o.jenis='';o.surat='';o.dari='';o.sampai='';o.mutu=''}
-try{await api('save',{sheet:'Jurnal',obj:o});await load();drawJ()}catch(x){toast(x.message,1)}}
+function jq(id,h){const e=(S.jurnal||[]).find(x=>x.santriId==id&&x.tanggal==S.jd);if(e&&e.hadir==h)return;const o={id:jid(id,S.jd),tanggal:S.jd,santriId:id,hadir:h,guru:S.user.nama};if(h!='Hadir'){o.jenis='';o.surat='';o.dari='';o.sampai='';o.mutu=''}
+const p={sheet:'Jurnal',obj:o};tulisN++;terapkan('save',p);pakai(DB);drawJ();antre++;
+rantai=rantai.then(()=>kirim('save',p)).catch(async x=>{usang=true;toast('Gagal menyimpan kehadiran: '+x.message,1);try{await load();drawJ()}catch(e){}}).finally(()=>antre--)}
 async function jall(){const ix=new Set((S.jurnal||[]).filter(x=>x.tanggal==S.jd).map(x=>x.santriId)),items=flt().filter(s=>!ix.has(s.id)).map(s=>({sheet:'Jurnal',obj:{id:jid(s.id,S.jd),tanggal:S.jd,santriId:s.id,hadir:'Hadir',guru:S.user.nama}}));if(!items.length)return toast('Semua santri sudah dicatat');
 try{await api('saveMany',{items});await load();drawJ();toast(items.length+' santri ditandai hadir')}catch(x){toast(x.message,1)}}
 let JF={};
@@ -322,7 +346,7 @@ function jsave(){const J=JF,hd=J.h=='Hadir',sn=hd?$('#f_sur').value:'';let dr=''
 sv('Jurnal',{id:jid(J.id,J.d),tanggal:J.d,santriId:J.id,hadir:J.h,jenis:sn?J.j:'',surat:sn?+sn:'',dari:dr,sampai:sm,mutu:sn?J.mu:'',catatan:$('#f_cat').value.trim(),guru:S.user.nama},'Jurnal tersimpan')}
 function jhist(id){const s=S.santri.find(x=>x.id==id),l=jlist(id),m=l.filter(x=>x.tanggal>=addD(ltoday(),-29));modal(`<div class="hero"><div class="av">${ini(s.nama)}</div><div><h3 style="margin:0">${esc(s.nama)}</h3><span class="mut">${esc(s.kelas)} · 30 hari terakhir</span></div></div>${jchips(m)}<div class="tw"><table class="tbl"><tr><th>TANGGAL</th><th>KEHADIRAN</th><th>SETORAN</th><th>KELANCARAN</th><th>CATATAN</th></tr>${l.slice(0,14).map(jrow).join('')||'<tr><td colspan="5" class="mut">Belum ada catatan jurnal.</td></tr>'}</table></div><div class="acts"><button class="btn ghost" onclick="closeM()">Tutup</button><button class="btn" onclick="closeM();jform('${id}')">Isi jurnal ${fmtS(S.jd)}</button></div>`)}
 /* ===== INIT ===== */
-(async()=>{const s=sessionStorage.getItem('tpq_s');if(s){try{const r=JSON.parse(s);S.token=r.token;S.user=r.user;await load();usePer();return render()}catch(e){sessionStorage.clear()}}loginView()})();
+(async()=>{const s=sessionStorage.getItem('tpq_s');if(s){try{const r=JSON.parse(s);S.token=r.token;S.user=r.user;$('#app').innerHTML='<p class="mut" style="padding:40px;text-align:center">Memuat data…</p>';await load();usePer();return render()}catch(e){sessionStorage.clear()}}loginView()})();
 
 let sibuk=false;
 async function prosesDemo(fn){if(sibuk)return;sibuk=true;const kunci=v=>document.querySelectorAll('.demo .btn').forEach(b=>b.disabled=v);kunci(true);toast('Memproses data demo, mohon tunggu…');clearTimeout(toast.t);
