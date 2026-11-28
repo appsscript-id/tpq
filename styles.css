@@ -387,3 +387,8 @@ input.bad{border-color:var(--r)!important;outline:3px solid #e0524f22}
 .pdfmode .paper table,.pdfmode .jp table{width:100%!important;max-width:100%;box-sizing:border-box}
 .pdfmode .paper,.pdfmode .jp{box-sizing:border-box;max-width:100%;overflow:visible}
 @media print{.paper{padding-right:6px!important;box-sizing:border-box}.paper table{max-width:100%}}
+
+/* judul rapor & periode di bawah garis kop */
+.kj{text-align:center;margin:0 0 14px;line-height:1.5}
+.kj b{display:block;text-transform:uppercase}
+.jp .kj{margin-bottom:.8em}
