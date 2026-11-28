@@ -63,7 +63,7 @@ function usePer(){const p=String(S.set.periodeAktif||'').slice(0,7);if(/^\d{4}-\
 async function load(){if(!DB||usang){DB=await kirim('all');usang=false;ambilT=Date.now()}pakai(DB)}
 function pakai(d){simpanCache(d);S.santri=d.Santri;S.users=d.Users||[];S.set=d.Settings;try{localStorage.setItem('tpq_brand',JSON.stringify({namaTpq:S.set.namaTpq,logo:S.set.logo}))}catch(e){}S.rapor=d.Rapor||[];S.jurnal=(d.Jurnal||[]).map(j=>({...j,tanggal:String(j.tanggal).slice(0,10),surat:j.surat===''||j.surat==null?'':Number(j.surat),dari:j.dari===''||j.dari==null?'':Number(j.dari),sampai:j.sampai===''||j.sampai==null?'':Number(j.sampai)}));S.nilai=d.Nilai.map(n=>({...n,nilai:Number(n.nilai),tanggal:String(n.tanggal).slice(0,10)}))}
 async function segarkan(){if(!API_URL||!S.token||antre||Date.now()-ambilT<6e4)return;ambilT=Date.now();const t=tulisN;
-try{const d=await kirim('all');if(t!=tulisN||antre||!S.token)return;DB=d;usang=false;pakai(d);
+try{const d=await kirim('all',{},1);if(t!=tulisN||antre||!S.token)return;DB=d;usang=false;pakai(d);
 const f=document.activeElement;if(!S.cur&&S.view!='setting'&&!$('#modal').classList.contains('on')&&!(f&&/INPUT|SELECT|TEXTAREA/.test(f.tagName)))render()}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)segarkan()});
 addEventListener('beforeunload',e=>{if(antre){e.preventDefault();e.returnValue=''}});
@@ -79,7 +79,7 @@ const fl=(u,p)=>{$('#f_u').value=u;$('#f_p').value=p};
 async function doLogin(e){e.preventDefault();const b=$('.lg-card .btn');if(b.disabled)return false;b.disabled=true;b.textContent='Memproses…';
 try{const r=await api('login',{username:val('u'),password:$('#f_p').value});S.token=r.token;S.user=r.user;sessionStorage.setItem('tpq_s',JSON.stringify({token:r.token,user:r.user}));
 DB=r.data||null;usang=!DB;ambilT=Date.now();await load();usePer();S.view='dash';render()}catch(x){toast(x.message,1);b.disabled=false;b.textContent='Masuk'}return false}
-function logout(){sessionStorage.clear();DB=null;usang=true;S.token=S.user=null;loginView()}
+function logout(){sessionStorage.clear();localStorage.removeItem(CK);DB=null;usang=true;S.token=S.user=null;loginView()}
 /* ===== CHARTS ===== */
 function line(pts,h=150){if(!pts.length)return'<p class="mut">Belum ada data</p>';const w=420,p=26,n=pts.length,x=i=>p+(n<2?(w-2*p)/2:i*(w-2*p)/(n-1)),y=v=>h-p-(v/100)*(h-2*p);
 return`<svg viewBox="0 0 ${w} ${h}" class="chart"><line x1="${p}" x2="${w-p}" y1="${y(kkm())}" y2="${y(kkm())}" class="kkm"/><path d="${pts.map((q,i)=>(i?'L':'M')+x(i)+' '+y(q.v)).join('')}" class="ln"/>${pts.map((q,i)=>`<circle cx="${x(i)}" cy="${y(q.v)}" r="4.5" class="dot"/><text x="${x(i)}" y="${h-6}" text-anchor="middle">${q.l}</text><text x="${x(i)}" y="${y(q.v)-9}" text-anchor="middle" class="vl">${f1(q.v)}</text>`).join('')}</svg>`}
@@ -443,7 +443,10 @@ const rkName=v=>'rekap-jurnal-'+v+'-'+jrange().join('_sd_');
 function rkCsv(){const v=S.jrv||'ringkas',t='﻿'+rkAoa(v).map(a=>a.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download=rkName(v)+'.csv';a.click()}
 function rkXlsx(){if(!window.XLSX)return toast('Pustaka XLSX belum termuat (perlu internet)',1);const D=rkData(),w=XLSX.utils.book_new();[['Ringkasan','ringkas'],['Absensi','absen'],['Setoran','setor']].forEach(([n,v])=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(rkAoa(v,D)),n));XLSX.writeFile(w,rkName('lengkap')+'.xlsx')}
 /* ===== INIT ===== */
-(async()=>{const s=sessionStorage.getItem('tpq_s');if(s){try{const r=JSON.parse(s);S.token=r.token;S.user=r.user;$('#app').innerHTML='<p class="mut" style="padding:40px;text-align:center">Memuat data…</p>';await load();usePer();return render()}catch(e){sessionStorage.clear()}}loginView()})();
+(async()=>{const s=sessionStorage.getItem('tpq_s');if(s){try{const r=JSON.parse(s);S.token=r.token;S.user=r.user;
+const c=bacaCache();
+if(c){DB=c;usang=false;pakai(DB);usePer();render();ambilT=0;segarkan();return}
+$('#app').innerHTML='<p class="mut" style="padding:40px;text-align:center">Memuat data…</p>';await load();usePer();return render()}catch(e){sessionStorage.clear()}}loginView()})();
 
 let sibuk=false;
 async function prosesDemo(fn){if(sibuk)return;sibuk=true;const kunci=v=>document.querySelectorAll('.demo .btn').forEach(b=>b.disabled=v);kunci(true);toast('Memproses data demo, mohon tunggu…');clearTimeout(toast.t);
