@@ -42,9 +42,13 @@ if(a=='saveSettings'){Object.assign(d.Settings,p.map);sv();return 1}}
 /* Data disimpan di memori: setelah menyimpan tidak perlu mengunduh ulang semuanya */
 let DB=null,usang=true,tulisN=0,antre=0,ambilT=0,rantai=Promise.resolve();
 document.head.insertAdjacentHTML('beforeend','<style>body.muat:before{content:"";position:fixed;top:0;left:0;height:3px;width:40%;background:linear-gradient(90deg,#6d2aa8,#e0239a);z-index:200;animation:muat 1.1s ease-in-out infinite}@keyframes muat{from{transform:translateX(-100%)}to{transform:translateX(250%)}}@media print{body.muat:before{display:none}}</style>');
-async function kirim(action,p={}){if(!API_URL)return local(action,p);antre++;document.body.classList.add('muat');
+async function kirim(action,p={},diam){if(!API_URL)return local(action,p);antre++;
+const tm=diam?null:setTimeout(()=>document.body.classList.add('muat'),500);
 try{const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action,token:S.token,...p})});const j=await r.json();if(!j.ok)throw Error(j.error);return j.data}
-finally{if(!--antre)document.body.classList.remove('muat')}}
+finally{clearTimeout(tm);if(!--antre)document.body.classList.remove('muat')}}
+const CK='tpq_cache';
+function simpanCache(d){try{localStorage.setItem(CK,JSON.stringify({u:S.user&&S.user.id,d}))}catch(e){}}
+function bacaCache(){try{const c=JSON.parse(localStorage.getItem(CK));return c&&S.user&&c.u==S.user.id?c.d:null}catch(e){return null}}
 const TULIS=['save','saveMany','del','delDemo','saveSettings'];
 function ubah(sheet,obj){const o=JSON.parse(JSON.stringify(obj)),t=DB[sheet]||(DB[sheet]=[]),i=t.findIndex(x=>x.id==o.id);i>=0?t[i]={...t[i],...o}:t.push(o)}
 function terapkan(a,p,r){if(!DB)return;
@@ -57,7 +61,7 @@ async function api(action,p={}){const w=TULIS.includes(action);if(w){tulisN++;aw
 try{const r=await kirim(action,p);if(w){tulisN++;terapkan(action,p,r)}return r}catch(e){if(w)usang=true;throw e}}
 function usePer(){const p=String(S.set.periodeAktif||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(p))S.per=p}
 async function load(){if(!DB||usang){DB=await kirim('all');usang=false;ambilT=Date.now()}pakai(DB)}
-function pakai(d){S.santri=d.Santri;S.users=d.Users||[];S.set=d.Settings;try{localStorage.setItem('tpq_brand',JSON.stringify({namaTpq:S.set.namaTpq,logo:S.set.logo}))}catch(e){}S.rapor=d.Rapor||[];S.jurnal=(d.Jurnal||[]).map(j=>({...j,tanggal:String(j.tanggal).slice(0,10),surat:j.surat===''||j.surat==null?'':Number(j.surat),dari:j.dari===''||j.dari==null?'':Number(j.dari),sampai:j.sampai===''||j.sampai==null?'':Number(j.sampai)}));S.nilai=d.Nilai.map(n=>({...n,nilai:Number(n.nilai),tanggal:String(n.tanggal).slice(0,10)}))}
+function pakai(d){simpanCache(d);S.santri=d.Santri;S.users=d.Users||[];S.set=d.Settings;try{localStorage.setItem('tpq_brand',JSON.stringify({namaTpq:S.set.namaTpq,logo:S.set.logo}))}catch(e){}S.rapor=d.Rapor||[];S.jurnal=(d.Jurnal||[]).map(j=>({...j,tanggal:String(j.tanggal).slice(0,10),surat:j.surat===''||j.surat==null?'':Number(j.surat),dari:j.dari===''||j.dari==null?'':Number(j.dari),sampai:j.sampai===''||j.sampai==null?'':Number(j.sampai)}));S.nilai=d.Nilai.map(n=>({...n,nilai:Number(n.nilai),tanggal:String(n.tanggal).slice(0,10)}))}
 async function segarkan(){if(!API_URL||!S.token||antre||Date.now()-ambilT<6e4)return;ambilT=Date.now();const t=tulisN;
 try{const d=await kirim('all');if(t!=tulisN||antre||!S.token)return;DB=d;usang=false;pakai(d);
 const f=document.activeElement;if(!S.cur&&S.view!='setting'&&!$('#modal').classList.contains('on')&&!(f&&/INPUT|SELECT|TEXTAREA/.test(f.tagName)))render()}catch(e){}}
