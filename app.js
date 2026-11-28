@@ -308,11 +308,11 @@ function loadPdfLib(){return window.html2pdf?Promise.resolve():new Promise((ok,n
 /* Cetak dan Simpan PDF memakai mesin yang sama, jadi hasilnya identik */
 async function buatPdf(){const ids=S.rp||[];await loadPdfLib();const w=document.createElement('div');w.className='pdfmode';w.style.width='718px';w.innerHTML=ids.map(S.rpf||paperHtml).join('');
 const sn=ids.length==1?S.santri.find(x=>x.id==ids[0]):null,P=S.rpn||'Rapor',nm=sn?P+'_'+sn.nama.replace(/[^\w]+/g,'_'):P+'_'+ids.length+'_santri';
-return html2pdf().set({margin:[10,10,10,10],filename:nm+'.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',scrollX:0,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['tr','h4','h5','.sign','.jsg','.jk']}}).from(w)}
+return{pdf:html2pdf().set({margin:[10,10,10,10],filename:nm+'.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',scrollX:0,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['tr','h4','h5','.sign','.jsg','.jk']}}).from(w)}}
 async function tombolPdf(id,label,fn){const b=$('#'+id);if(!b||b.disabled||!(S.rp||[]).length)return;const t=b.innerHTML;b.disabled=true;b.textContent=label;try{await fn()}catch(e){toast(e.message||'Gagal membuat PDF',1)}b.disabled=false;b.innerHTML=t}
-function savePdf(){return tombolPdf('bpdf','Membuat PDF…',async()=>{await(await buatPdf()).save()})}
+function savePdf(){return tombolPdf('bpdf','Membuat PDF…',async()=>{await(await buatPdf()).pdf.save()})}
 function printM(){return tombolPdf('bprt','Menyiapkan…',async()=>{let pdf;try{pdf=await buatPdf()}catch(e){document.body.classList.add('pm');print();document.body.classList.remove('pm');return}
-const url=URL.createObjectURL(await pdf.outputPdf('blob'));$('#pdfprint')?.remove();const f=document.createElement('iframe');f.id='pdfprint';f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+const url=URL.createObjectURL(await pdf.pdf.outputPdf('blob'));$('#pdfprint')?.remove();const f=document.createElement('iframe');f.id='pdfprint';f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
 await new Promise(ok=>{f.onload=ok;f.src=url;document.body.appendChild(f);setTimeout(ok,4000)});
 try{f.contentWindow.focus();f.contentWindow.print()}catch(e){window.open(url,'_blank')||toast('Izinkan pop-up untuk mencetak',1)}})}
 function rapor(id){S.rp=[id];S.rpf=S.rpn=null;modal(paperHtml(id)+MACT)}
