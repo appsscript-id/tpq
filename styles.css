@@ -349,3 +349,32 @@ input.bad{border-color:var(--r)!important;outline:3px solid #e0524f22}
 .rk2 td[data-l]:before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--mut);margin-bottom:2px}
 .mx td.mxn,.mx th.mxn{min-width:130px}
 }
+
+/* ===== Laporan Jurnal per Santri (1 halaman A4, semua ukuran dalam em) ===== */
+.paper.jp{color:#1d1028;line-height:1.35;padding:0;page-break-after:auto;break-after:auto}
+.jp+.jp{page-break-before:always;break-before:page}
+.box:has(.jp) .jp+.jp{margin-top:28px;padding-top:28px;border-top:2px dashed var(--ln)}
+.jp table{display:table!important;width:100%;table-layout:fixed;border-collapse:collapse;overflow:visible!important}
+.jp th,.jp td{letter-spacing:0;text-transform:none}
+.jp .ph{gap:1.1em;margin-bottom:.7em;padding-bottom:.7em;border-bottom:.25em double var(--g2)}
+.jp .ph .lm{width:4.6em;height:4.6em;font-size:1em;border-radius:1em}.jp .ph div.lm{font-size:2.4em;width:1.9em;height:1.9em;border-radius:.4em}
+.jp .ph h2{font-size:1.75em;line-height:1.15}.jp .ph small{font-size:.95em;line-height:1.4}
+.jpt{text-align:center;margin:.2em 0 .8em}.jpt b{display:block;font-size:1.3em;letter-spacing:.06em;color:var(--g2)}.jpt span{display:block;font-size:.95em;color:#5e5070;margin-top:.15em}
+.jpi{margin-bottom:.4em}.jpi td{border:0!important;padding:.12em .4em .12em 0;font-size:1em;vertical-align:top}.jpi td:nth-child(1),.jpi td:nth-child(3){width:15%;color:#5e5070}.jpi td:nth-child(2){width:42%}
+.jp h5{font-size:1.05em;color:var(--g2);margin:.9em 0 .35em;padding-left:.5em;border-left:.3em solid var(--gold);break-after:avoid;page-break-after:avoid}
+.jg th,.jg td{border:1px solid #cbb8de!important;padding:.32em .45em;font-size:.95em;vertical-align:middle;overflow-wrap:anywhere}
+.jg th{background:#efe4f8!important;color:var(--g2);font-weight:700;text-align:center;font-size:.88em;line-height:1.25}
+.jg td.c{text-align:center}.jg tr{break-inside:avoid;page-break-inside:avoid}
+.jd td{font-size:.9em;padding:.22em .4em}.jd tr:nth-child(odd) td{background:#fbf8fd}
+.jb{display:inline-block;padding:.08em .55em;border-radius:1em;font-weight:700;font-size:.9em;background:#efeaf4;color:#5e5070;white-space:nowrap}
+.jb.g{background:#dff6ea;color:#0d7a4c}.jb.y{background:#fdf0cf;color:#85600a}.jb.r{background:#fde0e0;color:#b02f2f}
+.jr{color:#c23a3a}
+.jn{font-size:.9em;color:#4a3d5a;margin:.35em 0 0!important;line-height:1.45!important}
+.jk{border:1px solid #cbb8de;background:#faf6fd;border-radius:.5em;padding:.6em .8em;font-size:.95em;line-height:1.55;text-align:justify}
+.jsg{margin-top:1.3em;break-inside:avoid;page-break-inside:avoid}.jsd{text-align:right;font-size:.95em;margin-bottom:.3em}
+.jss{display:grid;grid-template-columns:repeat(3,1fr);gap:2em;text-align:center;font-size:.95em}.jss small{display:block;margin-bottom:4.6em;font-size:1em}.jss span{display:block;border-top:1px solid #1d1028;padding-top:.25em;font-weight:700}
+@media print{.paper.jp{padding:0!important}.box:has(.jp) .jp+.jp{margin-top:0;padding-top:0;border-top:0}}
+/* laporan jurnal: boleh lebih dari 1 halaman, judul tabel diulang di halaman berikutnya */
+.jd thead{display:table-header-group}.jd tbody tr:nth-child(odd) td{background:#fbf8fd}
+.jg .jb{white-space:normal;line-height:1.2}
+.jsd{display:grid;grid-template-columns:repeat(3,1fr);gap:2em;text-align:center}.jsd span{grid-column:3}
