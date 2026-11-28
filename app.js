@@ -16,9 +16,9 @@ document.addEventListener('click',e=>{if(e.target.closest('.side')&&$('#modal').
 /* ===== DATA / API ===== */
 const DEF={namaTpq:'TPQ Al-Hidayah',kategori:'Hafalan,Makharijul Huruf,Tajwid',kelas:'Iqra 1,Iqra 2,Iqra 3,Al-Quran',kkm:'70'};
 const dmId=v=>/^(demo-|s([1-9]|1[0-4])$)/.test(String(v||'')),isDm=x=>dmId(x.id)||dmId(x.santriId);
-function demoData(){const per=S.per||qStart(today().slice(0,7)),N=['Ahmad Fauzan','Aisyah Putri','Muhammad Rizki','Fatimah Azzahra','Umar Abdullah','Khadijah Nur','Ali Ramadhan','Zahra Maulida','Yusuf Hakim','Salma Nabila','Ibrahim Malik','Maryam Safira','Hasan Basri','Nabila Rahma'],K=DEF.kelas.split(','),C=DEF.kategori.split(','),nt=['Bacaan lancar, pertahankan','Perlu latihan makhraj','Sangat aktif di kelas','Hafalan bertambah baik','Perlu bimbingan di rumah'],DAY=864e5,now=Date.now(),rnd=n=>Math.floor(Math.random()*n),LV=['Sangat baik','Baik','Cukup baik'],D={Santri:[],Nilai:[],Rapor:[],Jurnal:[]};
+function demoData(){const per=S.per||qStart(today().slice(0,7)),N=['Ahmad Fauzan','Aisyah Putri','Muhammad Rizki','Fatimah Azzahra','Umar Abdullah','Khadijah Nur','Ali Ramadhan','Zahra Maulida','Yusuf Hakim','Salma Nabila','Ibrahim Malik','Maryam Safira','Hasan Basri','Nabila Rahma'],K=kelasL().length?kelasL():DEF.kelas.split(','),C=DEF.kategori.split(','),nt=['Bacaan lancar, pertahankan','Perlu latihan makhraj','Sangat aktif di kelas','Hafalan bertambah baik','Perlu bimbingan di rumah'],DAY=864e5,now=Date.now(),rnd=n=>Math.floor(Math.random()*n),LV=['Sangat baik','Baik','Cukup baik'],D={Santri:[],Nilai:[],Rapor:[],Jurnal:[]};
 N.forEach((n,i)=>{const id='demo-'+(i+1),b=60+rnd(30),nm=n.split(' ')[0];
-D.Santri.push({id,nama:n,nis:'2026'+String(i+1).padStart(3,'0'),kelas:K[i%K.length],gender:i%2?'Perempuan':'Laki-laki',wali:'Wali '+nm,guru:'Ustadz Ahmad',wa:'62812000'+(1000+i)});
+D.Santri.push({id,nama:n,nis:'DEMO'+String(i+1).padStart(3,'0'),kelas:K[i%K.length],gender:i%2?'Perempuan':'Laki-laki',wali:'Wali '+nm,guru:'Ustadz Ahmad',wa:''});
 for(let d=0;d<7;d++)D.Nilai.push({id:uid(),tanggal:new Date(now-d*DAY).toISOString().slice(0,10),santriId:id,kategori:C[(i+d)%C.length],nilai:Math.max(40,Math.min(100,b+rnd(15)-6)),catatan:nt[rnd(nt.length)],guru:'Ustadz Ahmad'});
 for(let d=0;d<7;d++){const t=addD(ltoday(),-d),q=rnd(20),h=q<17?'Hadir':q<18?'Izin':q<19?'Sakit':'Alpa',sn=h=='Hadir'?114-rnd(10):'';D.Jurnal.push({id:`jr_${id}_${t}`,tanggal:t,santriId:id,hadir:h,jenis:sn?['Ziyadah','Murajaah','Tahsin'][rnd(3)]:'',surat:sn,dari:sn?1:'',sampai:sn?AY[sn-1]:'',mutu:sn?['Lancar','Cukup','Perlu diulang'][rnd(3)]:'',catatan:sn&&rnd(3)==0?'Makhraj perlu diperbaiki':'',guru:'Ustadz Ahmad'})}
 const lv=i%4;if(lv==3)return;
@@ -36,6 +36,7 @@ if(S.user.role=='wali')throw Error('Tidak diizinkan');
 if(a=='save'){const t=d[p.sheet],i=t.findIndex(x=>x.id==p.obj.id);i>=0?t[i]={...t[i],...p.obj}:t.push({...p.obj,id:p.obj.id||uid()});sv();return 1}
 if(a=='saveMany'){p.items.forEach(x=>{const t=d[x.sheet],i=t.findIndex(y=>y.id==x.obj.id);i>=0?t[i]={...t[i],...x.obj}:t.push(x.obj)});sv();return 1}
 if(a=='del'){d[p.sheet]=d[p.sheet].filter(x=>x.id!=p.id);if(p.sheet=='Santri'){d.Nilai=d.Nilai.filter(n=>n.santriId!=p.id);d.Jurnal=(d.Jurnal||[]).filter(n=>n.santriId!=p.id)}sv();return 1}
+if(a=='delDemo'){let n=0;BK.forEach(k=>{const t=d[k]||[];d[k]=t.filter(x=>!isDm(x));n+=t.length-d[k].length});sv();return n}
 if(a=='saveSettings'){Object.assign(d.Settings,p.map);sv();return 1}}
 async function api(action,p={}){if(!API_URL)return local(action,p);const r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action,token:S.token,...p})});const j=await r.json();if(!j.ok)throw Error(j.error);return j.data}
 function usePer(){const p=String(S.set.periodeAktif||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(p))S.per=p}
@@ -242,7 +243,8 @@ SP.wa=()=>{const t=S.set.waTemplate||WA_DEF,s=S.santri[0];return`<div class="sg"
 /* Backup & Data */
 const BK=['Santri','Nilai','Rapor','Jurnal'];
 SP.data=()=>`<div class="grid g2"><div class="card"><h3>Backup &amp; pulihkan</h3><p class="sub2">Berisi santri, nilai, rapor, jurnal, dan pengaturan. Akun pengguna tidak ikut. Saat dipulihkan, data digabung: yang sama ditimpa, yang lain tetap ada.</p><div class="acts"><button class="btn ghost" onclick="$('#rsf').click()">⬆ Pulihkan dari file</button><button class="btn" onclick="backup()">⬇ Unduh backup</button><input id="rsf" type="file" accept=".json,application/json" hidden onchange="restore(this)"></div></div>
-<div class="card"><h3>Koneksi database</h3><p class="sub2">${API_URL?'Terhubung ke Google Spreadsheet via Apps Script.':'Mode demo aktif: data hanya tersimpan di browser ini. Isi API_URL di app.js dengan URL Web App Apps Script untuk memakai Spreadsheet.'}</p>${API_URL?'':'<div class="acts"><button class="btn red" onclick="hapusDemo()">Hapus Demo</button><button class="btn ghost" onclick="dataDemo()">Data Demo</button></div>'}</div></div>`;
+<div class="card demo"><h3>Data demo</h3><p class="sub2">14 santri contoh dengan kegiatan 7 hari terakhir, bernomor DEMO001 dan seterusnya. Hapus Demo hanya menghapus data contoh.</p><div class="acts"><button class="btn red" onclick="hapusDemo()">Hapus Demo</button><button class="btn ghost" onclick="dataDemo()">Data Demo</button></div></div>
+<div class="card"><h3>Koneksi database</h3><p class="sub2">${API_URL?'Terhubung ke Google Spreadsheet via Apps Script.':'Mode demo aktif: data hanya tersimpan di browser ini. Isi API_URL di app.js dengan URL Web App Apps Script untuk memakai Spreadsheet.'}</p></div></div>`;
 async function backup(){try{const d=await api('all'),o={app:'tpq',dibuat:new Date().toISOString(),Settings:d.Settings};BK.forEach(k=>o[k]=d[k]||[]);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download=`backup-tpq-${ltoday()}.json`;a.click();toast('Backup diunduh')}catch(e){toast(e.message,1)}}
 async function restore(el){const f=el.files[0];if(!f)return;el.value='';try{let o;try{o=JSON.parse(await f.text())}catch(e){}
 if(!o||o.app!='tpq')throw Error('Ini bukan file backup aplikasi TPQ');if(!confirm('Pulihkan data dari '+f.name+'? Data dengan ID yang sama akan ditimpa.'))return;
@@ -322,6 +324,14 @@ function jhist(id){const s=S.santri.find(x=>x.id==id),l=jlist(id),m=l.filter(x=>
 /* ===== INIT ===== */
 (async()=>{const s=sessionStorage.getItem('tpq_s');if(s){try{const r=JSON.parse(s);S.token=r.token;S.user=r.user;await load();usePer();return render()}catch(e){sessionStorage.clear()}}loginView()})();
 
-function saveDb(d){localStorage.setItem('tpq_db2',JSON.stringify(d));S.sel=new Set();S.cur=null;return load().then(render)}
-function dataDemo(){if(!confirm('Buat data demo dengan kegiatan 7 hari terakhir? Data demo lama diganti baru. Data asli Anda tidak terhapus.'))return;const d=db(),x=demoData();d.Santri=[...d.Santri.filter(v=>!isDm(v)),...x.Santri];d.Nilai=[...d.Nilai.filter(v=>!isDm(v)),...x.Nilai];d.Rapor=[...d.Rapor.filter(v=>!isDm(v)),...x.Rapor];d.Jurnal=[...(d.Jurnal||[]).filter(v=>!isDm(v)),...x.Jurnal];d.Users.forEach(u=>{if(u.role=='wali'&&String(u.santriId||'').split(',').every(dmId))u.santriId='demo-1,demo-2'});saveDb(d).then(()=>toast('Data demo dibuat')).catch(e=>toast(e.message,1))}
-function hapusDemo(){const d=db();if(!d.Santri.some(isDm)&&!d.Nilai.some(isDm)&&!d.Rapor.some(isDm)&&!(d.Jurnal||[]).some(isDm))return toast('Tidak ada data demo');if(!confirm('Hapus data demo saja (santri, nilai, rapor contoh)? Data asli yang Anda input tidak ikut terhapus.'))return;d.Santri=d.Santri.filter(v=>!isDm(v));d.Nilai=d.Nilai.filter(v=>!isDm(v));d.Rapor=d.Rapor.filter(v=>!isDm(v));d.Jurnal=(d.Jurnal||[]).filter(v=>!isDm(v));saveDb(d).then(()=>toast('Data demo dihapus')).catch(e=>toast(e.message,1))}
+let sibuk=false;
+async function prosesDemo(fn){if(sibuk)return;sibuk=true;const kunci=v=>document.querySelectorAll('.demo .btn').forEach(b=>b.disabled=v);kunci(true);toast('Memproses data demo, mohon tunggu…');clearTimeout(toast.t);
+try{const m=await fn();S.sel=new Set();S.cur=null;await load();render();toast(m)}
+catch(e){toast(/tidak dikenal/i.test(e.message)?'Code.gs belum diperbarui. Tempel versi baru lalu deploy ulang.':e.message,1);kunci(false)}
+sibuk=false}
+function dataDemo(){if(!confirm('Buat data demo dengan kegiatan 7 hari terakhir? Data demo lama diganti baru, data asli tidak terhapus.'+(API_URL?'\n\nData demo masuk ke Spreadsheet dan terlihat oleh pengguna lain.':'')))return;
+prosesDemo(async()=>{await api('delDemo');const x=demoData();await api('saveMany',{items:BK.flatMap(k=>x[k].map(obj=>({sheet:k,obj})))});
+if(!API_URL){const d=db();d.Users.forEach(u=>{if(u.role=='wali'&&String(u.santriId||'').split(',').every(dmId))u.santriId='demo-1,demo-2'});localStorage.setItem('tpq_db2',JSON.stringify(d))}
+return'Data demo 7 hari dibuat'})}
+function hapusDemo(){if(!confirm('Hapus data demo saja (santri, nilai, rapor, dan jurnal contoh)? Data asli tidak ikut terhapus.'))return;
+prosesDemo(async()=>await api('delDemo')?'Data demo dihapus':'Tidak ada data demo')}
